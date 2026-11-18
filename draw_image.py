@@ -1,43 +1,24 @@
 #!/usr/bin/env python3
-"""Draw entry.png (v2): one image summing up the world news of
-Wednesday, 18 November 2026, as reported that day across several
-independent news roundups. Fifteen stories: one lead, six panels and
-eight ticker items, spanning the Middle East, Europe, Asia, Africa,
-the Americas and the Pacific, across war, diplomacy, health,
-disasters, politics and markets.
+"""Draw entry.png (v3, pictogram edition): the world news of Wednesday,
+18 November 2026 in one image - the v2 fifteen-story front page, with a
+small drawn pictogram in every panel's kicker bar so each story reads
+at a glance: a bridge for Crimea, three summit circles for Shenzhen,
+a virus for Ebola, a shield and cross for measles, a ballot box for
+Israel's government vote, a falling chart for the markets, and a drone
+over a burst for the lead story in the Gulf.
 
-Stories and their sources in the day's roundups:
-  LEAD  U.S. strikes an Iranian missile site on Qeshm Island; Iran
-        answers with drones against Bahrain and Kuwait.
-  1     Ukraine hits the Kerch (Crimea) Bridge for a second day; part
-        of the road span falls into the strait.
-  2     Xi Jinping hosts Vladimir Putin in Shenzhen and denounces
-        protectionism, while Donald Trump tours Asia ahead of a
-        three-leader summit this week.
-  3     The Ebola outbreak in DR Congo has more than doubled in three
-        months: over 11,000 cases and 5,400 deaths, children hardest.
-  4     The United States loses the measles elimination status it held
-        for 26 years: over 5,400 cases and 10 deaths.
-  5     Israel's president taps Gadi Eisenkot to try to form the next
-        government, bypassing Benjamin Netanyahu after the deadlocked
-        October election.
-  6     Markets slide worldwide: DAX -2.08%, S&P 500 -1.03%, FTSE 100
-        -1.76%, gold down to $3,775, Brent crude $91.55.
-  Ticker: Democrat Mary Peltola wins Alaska's Senate seat, giving the
-        Democrats 56 seats; a Russian military plane crashes in
-        Siberia (Kemerovo) killing 19; a magnitude 6.0 earthquake
-        strikes Papua New Guinea; Category 5 Cyclone Xavier hits the
-        Northern Cook Islands; cold and floods batter Gaza's displaced
-        camps as Australia, Canada, Italy and the UK urge aid access;
-        France sees a fourth weekend of cost-of-living protests; a
-        record 2,331 migrants arrive in the Canary Islands over one
-        weekend; the World Court is to rule on the Myanmar genocide
-        case.
-
-Layout: the date is the biggest thing on the page, the lead story
-gets the top band, six stories get labelled panels in two rows of
-three, and the rest run in a ticker along the bottom, so a viewer who
-missed the day can tell what happened from the image alone.
+Stories (from the day's independent roundups): U.S. strikes Iran's
+Qeshm Island and Iran fires drones at Bahrain and Kuwait; Ukraine
+hits the Crimea Bridge again and a span falls; Xi hosts Putin in
+Shenzhen as Trump tours Asia; Ebola in DR Congo doubles to 11,000
+cases and 5,400 deaths; the U.S. loses measles-free status after 26
+years; Israel's president taps Eisenkot to form a government; markets
+slide (DAX -2.1%, gold $3,775); Peltola wins Alaska and Democrats
+take 56 Senate seats; a Siberia plane crash kills 19, a magnitude 6.0
+quake hits Papua New Guinea and Category 5 Cyclone Xavier hits the
+Cook Islands; Gaza camps flood in the cold, France protests for a
+fourth weekend, record migrant arrivals reach the Canaries, and the
+World Court is to rule on the Myanmar genocide case.
 """
 
 from PIL import Image, ImageDraw, ImageFont
@@ -86,11 +67,78 @@ def text_block(draw, xy, text, fnt, fill, max_w, leading=1.12):
 
 
 def fit_line(draw, xy, text, fill, max_w, start=22):
-    """One ticker line, shrunk until it fits the page width."""
     size = start
     while draw.textlength(text, font=font(SANS_B, size)) > max_w:
         size -= 1
     draw.text(xy, text, font=font(SANS_B, size), fill=fill)
+
+
+# --- pictograms, drawn in white inside a 30x30 box at (x, y) ---
+
+def icon_bridge(d, x, y, c):
+    d.line([x, y + 22, x + 30, y + 22], fill=c, width=3)
+    d.line([x + 5, y + 22, x + 5, y + 6], fill=c, width=3)
+    d.line([x + 25, y + 22, x + 25, y + 6], fill=c, width=3)
+    d.arc([x + 5, y - 2, x + 25, y + 22], start=180, end=360, fill=c, width=2)
+    d.arc([x, y + 16, x + 14, y + 30], start=0, end=180, fill=c, width=2)
+    d.arc([x + 16, y + 16, x + 30, y + 30], start=0, end=180, fill=c, width=2)
+
+
+def icon_circles(d, x, y, c):
+    d.ellipse([x + 1, y + 7, x + 17, y + 23], outline=c, width=3)
+    d.ellipse([x + 13, y + 7, x + 29, y + 23], outline=c, width=3)
+    d.ellipse([x + 7, y + 1, x + 23, y + 17], outline=c, width=3)
+
+
+def icon_virus(d, x, y, c):
+    d.ellipse([x + 9, y + 9, x + 21, y + 21], outline=c, width=3)
+    for dx, dy in [(15, 2), (15, 24), (2, 15), (24, 15),
+                   (6, 6), (24, 6), (6, 24), (24, 24)]:
+        d.line([x + 15, y + 15, x + dx, y + dy], fill=c, width=2)
+        d.ellipse([x + dx - 2, y + dy - 2, x + dx + 2, y + dy + 2], fill=c)
+
+
+def icon_shield(d, x, y, c):
+    d.polygon([(x + 15, y + 2), (x + 27, y + 6), (x + 27, y + 16),
+               (x + 15, y + 28), (x + 3, y + 16), (x + 3, y + 6)],
+              outline=c, width=3)
+    d.line([x + 15, y + 9, x + 15, y + 21], fill=c, width=3)
+    d.line([x + 9, y + 15, x + 21, y + 15], fill=c, width=3)
+
+
+def icon_ballot(d, x, y, c):
+    d.rectangle([x + 4, y + 14, x + 26, y + 27], outline=c, width=3)
+    d.line([x + 10, y + 18, x + 20, y + 18], fill=c, width=3)
+    d.rectangle([x + 11, y + 2, x + 19, y + 14], outline=c, width=2)
+
+
+def icon_chart(d, x, y, c):
+    pts = [(x + 3, y + 6), (x + 11, y + 12), (x + 18, y + 10),
+           (x + 27, y + 22)]
+    d.line(pts, fill=c, width=3)
+    d.polygon([(x + 27, y + 22), (x + 20, y + 21), (x + 26, y + 15)],
+              fill=c)
+
+
+def icon_drone(d, x, y, c):
+    d.rectangle([x + 11, y + 12, x + 19, y + 19], outline=c, width=2)
+    for cx, cy in [(5, 6), (25, 6), (5, 25), (25, 25)]:
+        d.ellipse([x + cx - 4, y + cy - 2, x + cx + 4, y + cy + 2],
+                  outline=c, width=2)
+    d.line([x + 11, y + 13, x + 6, y + 8], fill=c, width=2)
+    d.line([x + 19, y + 13, x + 24, y + 8], fill=c, width=2)
+    d.line([x + 11, y + 18, x + 6, y + 23], fill=c, width=2)
+    d.line([x + 19, y + 18, x + 24, y + 23], fill=c, width=2)
+
+
+ICONS = {
+    "EUROPE - WAR": icon_bridge,
+    "ASIA - SUMMIT": icon_circles,
+    "AFRICA - HEALTH": icon_virus,
+    "AMERICAS - HEALTH": icon_shield,
+    "ISRAEL - POLITICS": icon_ballot,
+    "WORLD - MARKETS": icon_chart,
+}
 
 
 def panel(draw, box, kicker, kicker_color, headline, detail):
@@ -98,6 +146,7 @@ def panel(draw, box, kicker, kicker_color, headline, detail):
     draw.rectangle(box, fill=WHITE, outline=INK, width=3)
     draw.rectangle([x0, y0, x1, y0 + 36], fill=kicker_color)
     draw.text((x0 + 12, y0 + 7), kicker, font=font(SANS_B, 21), fill=WHITE)
+    ICONS[kicker](draw, x1 - 40, y0 + 3, WHITE)
     y = text_block(draw, (x0 + 12, y0 + 48), headline,
                    font(SANS_B, 25), INK, x1 - x0 - 24)
     text_block(draw, (x0 + 12, y + 6), detail,
@@ -108,17 +157,17 @@ def main():
     img = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(img)
 
-    # Masthead: the date is the loudest element, as the judge asks.
     d.rectangle([0, 0, W, 104], fill=INK)
     d.text((W // 2, 12), "WEDNESDAY 18 NOVEMBER 2026",
            font=font(SANS_B, 44), fill=WHITE, anchor="ma")
     d.text((W // 2, 66), "THE WORLD IN ONE DAY - 15 TOP STORIES",
            font=font(SANS, 23), fill=(210, 205, 190), anchor="ma")
 
-    # Lead story: the Gulf escalation.
+    # Lead story, with a drone pictogram beside the kicker.
     d.rectangle([16, 118, W - 16, 330], fill=NAVY)
     d.text((36, 130), "LEAD - MIDDLE EAST", font=font(SANS_B, 24),
            fill=(255, 196, 64))
+    icon_drone(d, W - 76, 126, (255, 196, 64))
     text_block(d, (36, 162),
                "U.S. strikes Iran's Qeshm Island; Iran fires drones "
                "at Bahrain and Kuwait",
@@ -127,7 +176,6 @@ def main():
            "Gulf fighting escalates days before a Trump-Xi-Putin summit.",
            font=font(SANS, 23), fill=(196, 214, 240))
 
-    # Six story panels, two rows of three.
     rows_y = [(344, 614), (626, 896)]
     cols_x = [(16, 341), (349, 674), (682, 1008)]
     stories = [
@@ -156,7 +204,6 @@ def main():
         x0, x1 = cols_x[i % 3]
         panel(d, [x0, y0, x1, y1], kicker, color, headline, detail)
 
-    # Bottom ticker: the rest of the day in three lines.
     d.rectangle([0, 908, W, H], fill=INK)
     fit_line(d, (16, 918),
              "U.S. VOTE: Peltola wins Alaska - Democrats take 56 Senate seats",
